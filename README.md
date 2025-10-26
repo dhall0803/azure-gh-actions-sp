@@ -1,6 +1,6 @@
 # Azure Terraform Service Principal Module
 
-This Terraform module creates an Azure Active Directory (Azure AD) application registration and service principal with the necessary permissions for GitHub Actions to deploy Azure resources using Terraform.
+This Terraform module creates an Azure Active Directory (Azure AD) application registration and service principal with the necessary permissions for GitHub Actions to deploy Azure resources using Terraform. It assumes that a storage account is being used for state management and assigns the Storage Blob Data Owner role to the created service principal.
 
 ## Purpose
 
@@ -23,6 +23,8 @@ This module sets up the identity and access management foundation for GitHub Act
 - **Least Privilege Access**: Grants specific permissions only where needed
 - **GitHub Actions Integration**: Pre-configured for seamless GitHub Actions workflow authentication
 - **Terraform State Management**: Includes permissions for accessing Terraform remote state storage
+- **Flexible Role Assignment**: Supports additional custom role assignments beyond the default ones
+- **Application Ownership**: Configurable ownership of the Azure AD application registration
 
 ## Usage
 
@@ -36,13 +38,36 @@ module "terraform_service_principal" {
   github_username                           = "your-github-username"
   github_repository_name                    = "your-repo-name"
   gihub_branch_name                         = "main"
+  owner_object_ids                          = ["00000000-0000-0000-0000-000000000000"]  # Optional
+  
+  # Optional: Additional role assignments
+  additional_roles_to_assign = {
+    "custom-role" = {
+      scope                = "/subscriptions/your-subscription-id/resourceGroups/your-rg"
+      role_definition_name = "Contributor"
+    }
+  }
 }
 ```
 
+## Input Variables
+
+| Variable | Description | Type | Default | Required |
+|----------|-------------|------|---------|----------|
+| `application_registration_name` | Display name for the Azure AD application registration and service principal | `string` | - | Yes |
+| `terraform_state_storage_storage_account_id` | The storage account resource ID for "Storage Blob Data Owner" role assignment | `string` | - | Yes |
+| `deployment_subscription_id` | Subscription ID where the 'Owner' role assignment will be scoped | `string` | - | Yes |
+| `github_username` | GitHub username for federated identity credential | `string` | - | Yes |
+| `github_repository_name` | GitHub repository name for federated identity credential | `string` | - | Yes |
+| `gihub_branch_name` | GitHub branch name for federated identity credential | `string` | `"main"` | No |
+| `owner_object_ids` | List of Azure AD Object IDs to assign as owners of the application | `list(string)` | `[]` | No |
+| `additional_roles_to_assign` | Map of additional roles to assign to the service principal | `map(object)` | `{}` | No |
+
 ## Outputs
 
-- `application_id`: The client ID of the created Azure AD application
-- `service_principal_object_id`: The object ID of the created service principal
+- `client_id`: The client ID of the Azure AD application (used for authentication)
+- `application_id`: The ID of the Azure AD application registration (internal identifier)
+- `service_principal_object_id`: The object ID of the service principal
 
 ## Requirements
 
