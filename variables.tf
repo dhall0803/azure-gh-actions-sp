@@ -9,7 +9,7 @@ The storage account resource id (full resource id) that will be the scope for th
 "Storage Blob Data Owner" role assignment. Example:
 `/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-name/providers/Microsoft.Storage/storageAccounts/storageacctname`
 EOT
-  type = string
+  type        = string
 }
 
 variable "deployment_subscription_id" {
@@ -30,6 +30,11 @@ variable "github_repository_name" {
 variable "gihub_branch_name" {
   description = "GitHub branch name, used to build Subject Identifier for federated identity credential"
   type        = string
-  default = "main"
+  default     = "main"
 }
 
+variable "owner_object_ids" {
+  description = "List of Azure AD Object IDs that will be assigned as owners of the application registration"
+  type        = list(string)
+  default     = []
+}
