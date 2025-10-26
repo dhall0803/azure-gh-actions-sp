@@ -20,6 +20,14 @@ resource "azurerm_role_assignment" "subscription_owner" {
   principal_id         = azuread_service_principal.sp.object_id
 }
 
+resource "azurerm_role_assignment" "additional_roles" {
+  for_each = var.additional_roles_to_assign
+
+  scope                = each.value.scope
+  role_definition_name = each.value.role_definition_name
+  principal_id         = azuread_service_principal.sp.object_id
+}
+
 resource "azuread_application_federated_identity_credential" "github_actions" {
   application_id = azuread_application.app.id
   display_name   = "GitHubActionsCredential"

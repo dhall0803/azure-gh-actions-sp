@@ -17,6 +17,19 @@ variable "deployment_subscription_id" {
   type        = string
 }
 
+variable "additional_roles_to_assign" {
+  description = <<-EOT
+A map of additional roles to assign to the service principal.
+The key is a unique name for the role assignment, and the value is an object with
+`scope` and `role_definition_name` properties.
+EOT
+  type = map(object({
+    scope                = string
+    role_definition_name = string
+  }))
+  default = {}
+}
+
 variable "github_username" {
   description = "GitHub username, used to build Subject Identifier for federated identity credential"
   type        = string
